@@ -21,7 +21,7 @@ int main() {
                  printf("Enter the number of elements to be added:");
                  scanf("%d",&j);
                  for(int i=0;i<j;i++){
-                printf("Enter  %d element: ",i+1);
+                printf("Enter element%d : ",i+1);
                 scanf("%d", &item);
                 if (front == -1) front = 0;
                 rear = (rear + 1) % n;
