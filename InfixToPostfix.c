@@ -29,7 +29,7 @@ int main()
             if (top != -1 && stack[top] == '(') {
                 top--;
             } else {
-                printf("Invalid expression: mismatched parentheses\n");
+                printf("Invalid expression\n");
                 return 0;
             }
         }
