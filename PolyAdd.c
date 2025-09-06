@@ -12,10 +12,10 @@ printf("Enter the no.of terms in 1'st polynomial");
 scanf("%d",&n1);
 for(i=0;i<n1;i++)
 {
-printf("Enter the coefficents & exponents of terms %d : " i+1);
+printf("Enter the coefficents & exponents of terms %d : ", i+1);
 scanf("%d %d",&p1[i].coef,&p1[i].exp);
 }
-printf("/n Enter the no.of terms in 2'nd polynomial");
+printf("\n Enter the no.of terms in 2'nd polynomial");
 scanf("%d",&n2);
 for(i=0;i<n2;i++)
 {
@@ -27,7 +27,7 @@ while(i<n1 && j<n2)
 {
    if(p1[i].exp==p2[j].exp)
     {
-       p3[k].coef=p1[i].coef+p2[i].coef;
+       p3[k].coef=p1[i].coef+p2[j].coef;
        p3[k].exp=p1[i].exp;
        i++;k++;j++;
    }
