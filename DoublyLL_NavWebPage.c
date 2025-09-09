@@ -62,7 +62,7 @@ int main()
 				printf("The current site: %s\n",current->url);
 			}
 		}
-		printf("What do you want to do: \n 1. Visit new page \n 2.Go back \n 3.Go forward\n 4.Display current page\n 5.Exit\n");
+		printf("What do you want to do next: ");
 		scanf("%d",&option);
 	}
 	return 0;
