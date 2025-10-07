@@ -1,109 +1,167 @@
-#include <stdio.h>
+      #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#define MAX 50
+#define MAX 100
 typedef struct Node {
     char data;
     struct Node* left;
     struct Node* right;
 } Node;
-typedef struct Stack {
+
+typedef struct {
     Node* data[MAX];
     int top;
-} Stack;
-void initStack(Stack* s) {
+} NodeStack;
+
+void initNodeStack(NodeStack* s) {
     s->top = -1;
 }
-void push(Stack* s, Node* node) {
+void pushNode(NodeStack* s, Node* node) {
     s->data[++(s->top)] = node;
 }
-Node* pop(Stack* s) {
+Node* popNode(NodeStack* s) {
     return s->data[(s->top)--];
 }
-int isOperand(char c) {
-    return isalpha(c);
-}
 Node* createNode(char data) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
+    Node* newNode = (Node*) malloc(sizeof(Node));
     newNode->data = data;
     newNode->left = newNode->right = NULL;
     return newNode;
 }
-int precedence(char op) {
-    if (op == '*' || op == '/') return 2;
-    if (op == '+' || op == '-') return 1;
-    return 0;
+
+
+int isOperand(char c) {
+    return isalnum(c); 
 }
-void infixToPostfix(char* infix, char* postfix) {
-    Stack s;
-    initStack(&s);
-    int k = 0;
-    for (int i = 0; infix[i] != '\0'; i++) {
-        char c = infix[i];
-        if (isOperand(c)) {
-            postfix[k++] = c; 
-        } else if (c == '(') {
-            push(&s, createNode(c)); 
-        } else if (c == ')') {
-            while (s.top != -1 && s.data[s.top]->data != '(') {
-                postfix[k++] = pop(&s)->data; 
-            }
-            pop(&s); 
-        } else if (c == '+' || c == '-' || c == '*' || c == '/') {
-            while (s.top != -1 && precedence(s.data[s.top]->data) >= precedence(c)) {
-                postfix[k++] = pop(&s)->data;  
-            }
-            push(&s, createNode(c));  
-        }
-    }
-    while (s.top != -1) {
-        postfix[k++] = pop(&s)->data;
-    }
-    postfix[k] = '\0'; 
-}
+
+
 Node* constructExpressionTree(char* postfix) {
-    Stack s;
-    initStack(&s);
+    NodeStack nodeStack;
+    initNodeStack(&nodeStack);
+
     for (int i = 0; postfix[i] != '\0'; i++) {
         char c = postfix[i];
+
         if (isOperand(c)) {
-            push(&s, createNode(c));  
-        } else {
-            Node* node = createNode(c);  
-            node->right = pop(&s);  
-            node->left = pop(&s);   
-            push(&s, node); 
+            Node* newNode = createNode(c);
+            pushNode(&nodeStack, newNode);
+        } else { 
+            Node* newNode = createNode(c);
+            Node* rightChild = popNode(&nodeStack);
+            Node* leftChild = popNode(&nodeStack);
+            newNode->left = leftChild;
+            newNode->right = rightChild;
+            pushNode(&nodeStack, newNode);
         }
     }
-    return pop(&s);  
+
+    return popNode(&nodeStack); 
 }
-void preorder(Node* root) {
+
+
+void PrintPrefix(Node* root) {
     if (root == NULL) return;
-    printf("%c ", root->data); 
-    preorder(root->left);     
-    preorder(root->right); 
+    printf("%c", root->data);
+    PrintPrefix(root->left);
+    PrintPrefix(root->right);
 }
-void postorder(Node* root) {
+
+
+void PrintPostfix(Node* root) {
     if (root == NULL) return;
-    postorder(root->left);      
-    postorder(root->right);    
-    printf("%c ", root->data);  
+    PrintPostfix(root->left);
+    PrintPostfix(root->right);
+    printf("%c", root->data);
 }
+
 int main() {
-    char infix[MAX], postfix[MAX];
+    char infix[MAX], postfix[MAX], stack[MAX];
+    int k = 0, top = -1;
+
     printf("Enter infix expression: ");
     scanf("%s", infix);
-    infixToPostfix(infix, postfix);
-    printf("Postfix Expression: %s\n", postfix);
+
+    
+    for (int i = 0; infix[i] != '\0'; i++) {
+        char c = infix[i];
+
+        if (isalnum(c)) {  
+            postfix[k++] = c;
+        } 
+        else if (c == '(') {
+            if (top == MAX - 1) {
+                printf("Stack overflow\n");
+                return 0;
+            }
+            stack[++top] = c;
+        } 
+        else if (c == ')') {
+            while (top != -1 && stack[top] != '(') {
+                postfix[k++] = stack[top--];
+            }
+            if (top != -1 && stack[top] == '(') {
+                top--; 
+            } else {
+                printf("Invalid expression\n");
+                return 0;
+            }
+        } 
+        else {
+            int prec;
+            if (c == '^') prec = 3;
+            else if (c == '*' || c == '/') prec = 2;
+            else if (c == '+' || c == '-') prec = 1;
+            else prec = 0;
+
+            while (top != -1) {
+                char topOp = stack[top];
+                int topPrec;
+                if (topOp == '^') topPrec = 3;
+                else if (topOp == '*' || topOp == '/') topPrec = 2;
+                else if (topOp == '+' || topOp == '-') topPrec = 1;
+                else topPrec = 0;
+
+                if ((prec < topPrec) || (prec == topPrec && c != '^')) {
+                    postfix[k++] = stack[top--];
+                } else {
+                    break;
+                }
+            }
+
+            stack[++top] = c;
+        }
+    }
+
+    while (top != -1) {
+        if (stack[top] == '(') {
+            printf("Invalid expression\n");
+            return 0;
+        }
+        postfix[k++] = stack[top--];
+    }
+
+    postfix[k] = '\0'; 
+
+    printf("Postfix expression: %s\n", postfix);
+
+    
     Node* root = constructExpressionTree(postfix);
-    printf("Prefix Expression: ");
-    preorder(root);
+
+   
+    printf("Prefix expression: ");
+    PrintPrefix(root);
     printf("\n");
-    printf("Postfix Expression (from tree): ");
-    postorder(root);  
+
+   
+    printf("Postfix expression (from tree): ");
+    PrintPostfix(root);
     printf("\n");
+
     return 0;
-}           
+}
+ 
+                
+                
                 
                 
                 
